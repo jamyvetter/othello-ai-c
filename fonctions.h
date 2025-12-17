@@ -67,7 +67,7 @@ int peut_jouer_bitboard(Plateau p, bool tour);
 bool peut_jouer_bb(Bitboard moi, Bitboard adv);
 
 bool fin_de_partie_bitboard(Plateau p);
-Bitboard coups_possibles(Bitboard moi, Bitboard adv) ;
+Bitboard coups_possibles(Bitboard moi, Bitboard adv) ; // renvoie le bitboard des coups possibles
 
 int evaluation_bitboard(Plateau p, int gene[7]);// evalue un plateau, comme d'habitude
 

@@ -34,7 +34,7 @@ clock_t debut=clock();
 
     for (int nb_parties=0; nb_parties<echantillon; nb_parties++){
         nb_coup_jouees=0;
-        Depth=2; // reset la profondeur au debut de la partie
+        Depth=4; // reset la profondeur au debut de la partie
         initialiser_plateau_bitboard(&plateau);
         ia_a_les_blancs=!ia_a_les_blancs; // change le cote de l'IA
         tour=false;
@@ -42,13 +42,14 @@ clock_t debut=clock();
             if (peut_jouer_bitboard(plateau,tour)) { // sinon on lui passe le tour
                 //printf("peut jopue\n");
                 if ((ia_a_les_blancs && tour) || (!ia_a_les_blancs && !tour)){ // c'est un NXOR mais flemme d'opti
-                   // /if (nb_coup_jouees>50) Depth=10;// profondeur max il calcule tout jusqu'au bout
-                    //else if (nb_coup_jouees>45) Depth= 8; // augmente la profondeur en fin de partie
-                    //else if (nb_coup_jouees>39) Depth= 6; 
+                    if (nb_coup_jouees>50) Depth=10;// profondeur max il calcule tout jusqu'au bout
+                    else if (nb_coup_jouees>45) Depth= 8; // augmente la profondeur en fin de partie
+                    else if (nb_coup_jouees>34) Depth= 6; 
                     minimax_bitboard_ia(Depth,&p,-INF-10,INF+10,tour,coeffs_ia,plateau); // test en profoneur 1 pour evaluer fonction evaluation
                     //ordi_random_bitboard(&p,tour,plateau); 
                 }
-                else{
+                else{ // JOUEUR 2
+                    //minimax_bitboard_ia(1,&p,-INF-10,INF+10,tour,coeffs_ia,plateau);
                     ordi_random_bitboard(&p,tour,plateau);            
                 }
                 //printf("va jouer joue le coup %d\n",p);
@@ -87,5 +88,11 @@ Et on a pas encore optimisé le peut_jouer
 A upgrade: la fonction d'eval gagne 75% du temps ce qui est peu, meme apres modif meilleur tableau.
 -> upgrade, maintenant gange 89-92% du temps a profondeur 1 après entrainement. En plus celle-là utilise la fonctionnalité de changer ses genes
 selon la phase du jeu
+*/
+/* 17/12: Apres resolution de certains bugs sur fonction d'evaluation... TADA!!
+Temps execution : 18.449000 secondes
+Victoires IA: 95003 / 100000 draw: 965 
+ winrate IA: 95 % ; taux_draw=0 %
+profondeur:1, nombre de parties: 100000
 
 */

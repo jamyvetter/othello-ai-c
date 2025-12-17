@@ -12,7 +12,7 @@
 
 
 int nb_coup_analyses=0; // le nombre de position regardees avant chaque decision
-int Depth=4; // la profondeur pour les appels de minimax
+//int Depth=4; // la profondeur pour les appels de minimax
 int nb_coup_jouees=0;// Le stade de la partie en cours
 
 int deplacement_x[8]= {-1, 0, 1 , -1,1, -1, 1,0};
@@ -74,7 +74,7 @@ void copierPlateau(char src[N][N], char dest[N][N]) { // copie le plateau dans u
 bool coup_dans_plateau(int x, int y){ // teste si les coordonnées d'un coup sont valides (dans le plateau)
 	return ((x>=0) && (x<N) && (y>=0) && (y<N));
 }
-// Fin fonctions de gestion du plateau  --------------------------------------------------------------------
+// Fin fonctions de gestion du plateau de char --------------------------------------------------------------------
 
 
 
@@ -167,32 +167,23 @@ void afficher_plateau_bitboard(Plateau jeu){ //affiche le plateau complet
 const Bitboard NOT_A_FILE = 0xfefefefefefefefeULL; // Tout sauf colonne A
 const Bitboard NOT_H_FILE = 0x7f7f7f7f7f7f7f7fULL; // Tout sauf colonne H
 
-// Fonctions utilitaires pour calculer les pions retournés dans une direction
+// Fonctions utilitaires pour calculer les pions retournés par un coup dans une direction
 static inline Bitboard get_flips_dir(Bitboard move, Bitboard joueur, Bitboard adv, int shift, Bitboard mask) {
-    Bitboard flips = 0;
-    Bitboard candidat = 0;
+    Bitboard flips = 0;// les jetons retournes par le coup move
+    Bitboard candidat = 0; // les candidats à retourner (une chaine de pions ennemis adjacente à notre jeton dans la bonne direction)
     
-    // 1. On regarde la première case dans la direction
-    // (move << shift) décale notre pion posé. 
-    // '& mask' empêche de sortir du plateau. 
-    // '& adv' vérifie si c'est un ennemi.
-    Bitboard x = (move << shift) & mask & adv;
+    Bitboard x = (move << shift) & mask & adv; // premier decalage dans la direction
 
-    // 2. Tant qu'on trouve des ennemis consécutifs, on les ajoute aux candidats
-    // On répète 6 fois (taille max d'une capture Othello)
+    // Tant qu'on trouve des ennemis consécutifs, on les ajoute aux candidats
+    // il y aura au max 6 ennemis donc on repete 6 fois.
     for(int i=0; i<6; i++) {
-        if (x == 0) break; // Plus d'ennemis, on arrête
-        candidat |= x;     // On ajoute ces pions à la liste potentielle
-        x = (x << shift) & mask & adv; // On continue d'avancer
+        if (x == 0) break; // fin de la chaine d'ennemis
+        candidat |= x;     //ajout des candidats à la liste potentielle des jetons a retourner
+        x = (x << shift) & mask & adv; // On avance dans la direction, il reste des ennemis
     }
 
-    // 3. Vérification finale : est-ce qu'après la chaîne d'ennemis, il y a UN DE NOS PIONS ?
-    // On prend le dernier 'x' (qui a dépassé les ennemis), on l'avance encore d'un cran
-    // Si il tombe sur 'joueur', alors la prise est validée !
-    // Note: on doit recalculer le décalage depuis le dernier candidat trouvé
-    // Une façon plus simple : on regarde le bit après le dernier candidat
+    // on regarde si après la chaine d'ennemis consecutifs, il y'a un jeton à nous (on encadre les ennemis)
     Bitboard apres_candidat = (candidat << shift) & mask;
-    
     if (apres_candidat & joueur) {
         flips = candidat; // La prise est valide
     }
@@ -200,8 +191,7 @@ static inline Bitboard get_flips_dir(Bitboard move, Bitboard joueur, Bitboard ad
     return flips;
 }
 
-// Fonction pour les directions inverses (décalage vers la droite >>)
-// C'est la même logique mais avec >>
+// Fonctions utilitaires pour calculer les pions retournés par un coup dans une autre direction (inverse precedent)
 static inline Bitboard get_flips_dir_inv(Bitboard move, Bitboard joueur, Bitboard adv, int shift, Bitboard mask) {
     Bitboard flips = 0;
     Bitboard candidat = 0;
@@ -255,7 +245,7 @@ void jouer_coup_bitboard(Plateau *p, int index_0_63, bool tour) {
 }
 
 // Renvoie 1 si le coup est légal, 0 sinon
-int est_coup_legal(Plateau p, bool tour, int coup) { // ! ne verifie pas que le coup soit bien entre 0 et 63 !
+int est_coup_legal(Plateau p, bool tour, int coup) { // ! ne verifie pas que le coup soit bien entre 0 et 63 ! (par souci de performance)
     Bitboard joueur; Bitboard adversaire;
     //On modifie les pointeurs selon quel joueur joue le coup
     if (tour) {
@@ -284,6 +274,7 @@ int est_coup_legal(Plateau p, bool tour, int coup) { // ! ne verifie pas que le 
 }
 
 
+// Verion obsolete car trop lente par rapport à la nouvelle
 int peut_jouer_bitboard(Plateau p, bool tour){
     for (int c=0;c<64;c++){
         if (est_coup_legal( p,  tour,  c)) return 1;
@@ -674,8 +665,8 @@ int evaluation_bitboard(Plateau p, int gene[7]) {
     }
     // Compte le nombre de coups legaux
     //-> plus rapide: gain de temps enorme, sur 100 parties passe de 10 secondes à 5 !!!
-    nb_coup_legal_blanc=__builtin_popcountll(peut_jouer_bb(p.blanc,p.noir));
-    nb_coup_legal_noir=__builtin_popcountll(peut_jouer_bb(p.noir,p.blanc));
+    nb_coup_legal_blanc=__builtin_popcountll(coups_possibles(p.blanc,p.noir));
+    nb_coup_legal_noir=__builtin_popcountll(coups_possibles(p.noir,p.blanc));
     
     if ((nb_coup_legal_blanc==0) && (nb_coup_legal_noir==0)){ // Si personne peut jouer = fin de partie
         int score_final=nb_jeton_blanc-nb_jeton_noir;
@@ -684,11 +675,6 @@ int evaluation_bitboard(Plateau p, int gene[7]) {
             //prise en compte par minimax qui considère que le coup est nul)
         else return 0; // egalite 
     }
-    /*for(int i=0; i<64; i++) {
-        if(est_coup_legal(p,true, i)) nb_coup_legal_blanc++;
-        if(est_coup_legal(p,false, i)) nb_coup_legal_noir++;
-    }
-      */
 
 
     // Evaluation de la mobilite:
@@ -903,7 +889,7 @@ int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour
         Bitboard coups_legaux_adversaire= coups_possibles(plateau.noir,plateau.blanc);
         
         if(coups_legaux_adversaire ==0){ //GAME OVER
-            return evaluation_bitboard(plateau,gene); 
+            return evaluation_bitboard(plateau,gene); // note: fonction evaluation sait detecter la fin de partie donc le score sera fiable
         }
         else{
             score= minimax_bitboard_ia(depth-1,NULL,alpha,betha,!tour,gene,plateau); // NOTE depth doit aussi marcher car on a rien calculé ----------------------------
@@ -916,7 +902,7 @@ int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour
             int index = __builtin_ctzll(coups_legaux_joueur); // Donne l'index du premier bit à 1 == le premier coup dispo à tester
             coups_legaux_joueur= coups_legaux_joueur & (coups_legaux_joueur-1) ;// suppression du coup qu'on vient de regarder
 
-            Plateau copie_plateau = plateau; //copie du plateau de jeu -> a voir si une copie de 2 bitboard marche bien
+            Plateau copie_plateau = plateau;
             jouer_coup_bitboard(&copie_plateau,index,tour);// Joue sur la copie
             score = minimax_bitboard_ia(depth - 1, NULL,alpha,betha, !tour,gene, copie_plateau);
             
@@ -971,10 +957,6 @@ if (best_move != NULL){  // si c'est l'appel de base de minimax (racine), on mod
 
    return meilleur_eval ; // Renvoie le score supposé après tout les appels de minimax, c'est la racine et l'evaluation
 }
-
-
-
-
 
 
 
@@ -1093,7 +1075,7 @@ void jouer_api_humain(int *x, int *y){ // // modifie les pointeurs x et y par le
 } 
 
 void jouer_api_ia(int *x, int *y,short int *g_color,char plateau[N][N]){ // modifie les pointeurs x et y par le coup suggeré par l'IA
-            
+    int Depth =4; //profondeur de base 
     if (nb_coup_jouees>50) Depth= 10;// profondeur max il calcule tout car il reste peu de possibilitées
     else if (nb_coup_jouees>45) Depth= 8; // augmente la profondeur en fin de partie; 
     else if (nb_coup_jouees>39) Depth= 6;

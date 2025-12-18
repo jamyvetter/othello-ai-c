@@ -1,0 +1,1 @@
+/*Fichier d'en tête de toutes les fonctions utiles pour othello*/

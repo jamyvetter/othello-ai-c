@@ -29,7 +29,7 @@ bool ia_a_les_blancs=false; // apres demande pr savoir quelle couleur joue l'IA:
 int nb_coup_jouees=0; int Depth=4; //profondeur de recherche de l'IA
 //int coeffs_ia[10]={21, 10, 72, 88, 23, 38, 80}; // les gens choisies pour l'IA
 int coeffs_ia[10]={18 ,43, 89, 93 ,6 ,2 ,40};
-int echantillon=1000;
+int echantillon=10000;
 clock_t debut=clock();
 
     for (int nb_parties=0; nb_parties<echantillon; nb_parties++){
@@ -45,7 +45,7 @@ clock_t debut=clock();
                     if (nb_coup_jouees>50) Depth=10;// profondeur max il calcule tout jusqu'au bout
                     else if (nb_coup_jouees>45) Depth= 8; // augmente la profondeur en fin de partie
                     else if (nb_coup_jouees>34) Depth= 6; 
-                    minimax_bitboard_ia(Depth,&p,-INF-10,INF+10,tour,coeffs_ia,plateau); // test en profoneur 1 pour evaluer fonction evaluation
+                    minimax_bitboard_ia(1,&p,-INF-10,INF+10,tour,coeffs_ia,plateau); // test en profoneur 1 pour evaluer fonction evaluation
                     //ordi_random_bitboard(&p,tour,plateau); 
                 }
                 else{ // JOUEUR 2

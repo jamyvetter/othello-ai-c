@@ -691,9 +691,8 @@ int evaluation_bitboard(Plateau p, int gene[7]) {
         c9 c8 c6 c3 c3 c6 c8 c9
      
      */
-
     //Masques pour chaque type de case
-    Bitboard c0_BB = 0b00000000'00000000'00000000'00011000'00011000'00000000'00000000'00000000ULL;
+ /*   Bitboard c0_BB = 0b00000000'00000000'00000000'00011000'00011000'00000000'00000000'00000000ULL;
     Bitboard c1_BB = 0b00000000'00000000'00011000'00100100'00100100'00011000'00000000'00000000ULL;
     Bitboard c2_BB = 0b00000000'00011000'00000000'01000010'01000010'00000000'00011000'00000000ULL;
     Bitboard c3_BB = 0b00011000'00000000'00000000'10000001'10000001'00000000'00000000'00011000ULL;
@@ -703,6 +702,32 @@ int evaluation_bitboard(Plateau p, int gene[7]) {
     Bitboard c7_BB = 0b00000000'01000010'00000000'00000000'00000000'00000000'01000010'00000000ULL;
     Bitboard c8_BB = 0b01000010'10000001'00000000'00000000'00000000'00000000'10000001'01000010ULL;
     Bitboard c9_BB = 0b10000001'00000000'00000000'00000000'00000000'00000000'00000000'10000001ULL;
+*/
+/*
+ CEs MASques là sont pas bons (deja pas de la meme taille)
+    Bitboard c0_BB = 0x1818000000ULL;
+    Bitboard c1_BB = 0x304848300001820000000ULL;
+    Bitboard c2_BB = 0x18004242001800ULL;
+    Bitboard c3_BB = 0x1800008181000000ULL;
+    Bitboard c4_BB = 0x240000240000ULL;
+    Bitboard c5_BB = 0x24420000422400ULL;
+    Bitboard c6_BB = 0x2400810000810000ULL;
+    Bitboard c7_BB = 0x42000000004200ULL;
+    Bitboard c8_BB = 0x4281000000008000ULL;
+    Bitboard c9_BB = 0x8100000000000000ULL;
+*/
+
+    Bitboard c0_BB = 0b0000000000000000000000000001100000011000000000000000000000000000ULL;
+    Bitboard c1_BB = 0b0000000000000000000110000010010000100100000110000000000000000000ULL;
+    Bitboard c2_BB = 0b0000000000011000000000000100001001000010000000000001100000000000ULL;
+    Bitboard c3_BB = 0b0001100000000000000000001000000110000001000000000000000000011000ULL;
+    Bitboard c4_BB = 0b0000000000000000001001000000000000000000001001000000000000000000ULL;
+    Bitboard c5_BB = 0b0000000000100100010000100000000000000000010000100010010000000000ULL;
+    Bitboard c6_BB = 0b0010010000000000100000010000000000000000100000010000000000100100ULL;
+    Bitboard c7_BB = 0b0000000001000010000000000000000000000000000000000100001000000000ULL;
+    Bitboard c8_BB = 0b0100001010000001000000000000000000000000000000001000000101000010ULL;
+    Bitboard c9_BB = 0b1000000100000000000000000000000000000000000000000000000010000001ULL;
+
 
     //Poids de chaque case          -------- A determiner/ modifier par l'IA -------------
 
@@ -870,6 +895,7 @@ if (  (meilleur_x!=-1) && (meilleur_y!=-1)){ // on vérifie aussi que l'on a tro
    return meilleur_eval ;
 }
 
+const Bitboard c8_c9_BB = 0b1100001110000001000000000000000000000000000000001000000111000011ULL;
 
 int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour, int gene[7],Plateau plateau)
 {
@@ -898,6 +924,26 @@ int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour
         }
     }
     else{// On a passé le IF, on a donc des coups legaux
+      /*  
+        Bitboard coups_prioriataires = coups_legaux_joueur & (c8_c9_BB); //Les coups a regarder en priorité
+        while (coups_prioriataires){ // tant qu'il reste des coups à tester
+            int index = __builtin_ctzll(coups_prioriataires); // Donne l'index du premier bit à 1 == le premier coup dispo à tester
+            coups_prioriataires= coups_prioriataires & (coups_prioriataires-1) ;// suppression du coup qu'on vient de regarder
+
+            Plateau copie_plateau = plateau;
+            jouer_coup_bitboard(&copie_plateau,index,tour);// Joue sur la copie
+            score = minimax_bitboard_ia(depth - 1, NULL,alpha,betha, !tour,gene, copie_plateau);
+            
+            if (score > meilleur_eval) {
+                meilleur_eval = score;
+                meilleur_coup =index ;
+            }
+            if (score >alpha) alpha = score;
+            if (betha<=alpha) break;  // le noeud est condamne
+        }        
+        coups_legaux_joueur &= ~c8_c9_BB ; // On actualise les coup_legaux, on enleve ceux deja teste
+        
+        */
         while (coups_legaux_joueur){ // tant qu'il reste des coups à tester
             int index = __builtin_ctzll(coups_legaux_joueur); // Donne l'index du premier bit à 1 == le premier coup dispo à tester
             coups_legaux_joueur= coups_legaux_joueur & (coups_legaux_joueur-1) ;// suppression du coup qu'on vient de regarder
@@ -919,6 +965,7 @@ int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour
     else { //type MIN = NOIRS    
     meilleur_eval = INF; // la pire eval possible pour les noirs
     
+    
     Bitboard coups_legaux_joueur= coups_possibles( plateau.noir , plateau.blanc); // creation du bitboard des cases possibles
     
     if(coups_legaux_joueur ==0){ // la profondeur n'est pas 0 mais on ne peux jouer
@@ -933,6 +980,31 @@ int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour
         }
     }
     else{// On a passé le IF, on a donc des coups legaux
+
+/*
+        Bitboard coups_prioriataires = coups_legaux_joueur & (c8_c9_BB); //Les coups a regarder en priorité
+        if (coups_prioriataires != 0){
+        while (coups_prioriataires){ // tant qu'il reste des coups à tester
+            int index = __builtin_ctzll(coups_prioriataires); // Donne l'index du premier bit à 1 == le premier coup dispo à tester
+            coups_prioriataires= coups_prioriataires & (coups_prioriataires-1) ;// suppression du coup qu'on vient de regarder
+
+            Plateau copie_plateau = plateau;
+            
+            jouer_coup_bitboard(&copie_plateau,index,tour);// Joue sur la copie
+            score = minimax_bitboard_ia(depth - 1, NULL,alpha,betha, !tour,gene, copie_plateau);
+            
+            if (score < meilleur_eval) {
+                meilleur_eval = score;
+                meilleur_coup = index ;
+            }
+            if (score<betha) betha=score;
+            if (betha<=alpha) break;  // le noeud est condamne
+        }        
+        }
+        
+
+        coups_legaux_joueur &= ~c8_c9_BB ; // On actualise les coup_legaux, on enleve ceux deja teste
+        */
         while (coups_legaux_joueur){ // tant qu'il reste des coups à tester
             int index = __builtin_ctzll(coups_legaux_joueur); // Donne l'index du premier bit à 1 == le premier coup dispo à tester
             coups_legaux_joueur= coups_legaux_joueur & (coups_legaux_joueur-1) ;// suppression du coup qu'on vient de regarder

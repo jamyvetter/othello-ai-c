@@ -115,4 +115,24 @@ uint64_t calculer_hash_complet(Bitboard noir, Bitboard blanc, bool tour); // cal
 
 
 void jouer_coup_bitboard_hash(Plateau *p, uint64_t *nouveau_hash, int index_0_63, bool tour); // modifie aussi nouveau_hash selon les pions retournes
+
 int minimax_hash_temporel(int depth,int *best_move,int alpha, int betha, bool tour,Plateau plateau,uint64_t hash); //version adaptative du temps restant
+
+
+/*NOVEAU, ouvertures
+On part du principe que tout le monde va jouer en haut à gauche au début: d3
+*/
+#define TAILLE_LIVRE_OUVERTURE 20
+typedef struct {
+    uint64_t key; //le hash de la position
+    uint64_t move; // le coup connu
+} position_connue; // une position d'ouverture connue avec son coup sera stockée dans cette structure
+
+extern position_connue opening_book[TAILLE_LIVRE_OUVERTURE]; // faire un malloc??
+
+// livre le plus à jour, et pour le hash, true:false indique qui a le tour (true=à blanc de jouer)
+void init_hash_ouvertures(position_connue opening_book[TAILLE_LIVRE_OUVERTURE]); // ! A faire après init du hash zobrist
+
+int recherche_ouverture(uint64_t hash);
+    /*Cherche dans le livre d'ouvertures(global) si la position associée à hash est connue, au quel cas on renvoie le coup connu. Sinon, renvoie -1*/
+

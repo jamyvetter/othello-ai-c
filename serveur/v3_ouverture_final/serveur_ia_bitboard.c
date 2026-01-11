@@ -16,17 +16,15 @@
 #include "userNetwork.h"
 #include "fonctions.h"
 
+
+/*Variables globales pour la gestion du temps ecoule*/
+double limite_temps = 0.1; // secondes ----------------------------------A changer en 14-15s pr le tournoi, à tester ------------------
+double debut;
+bool temps_depasse =false;
+
 // Mode serveur
 int main(int argc,char *argv[]) 
-{
-	/*Variables globales pour la gestion du temps ecoule*/
-	double limite_temps = 0.1; // secondes ----------------------------------A changer en 14-15s pr le tournoi, à tester ------------------
-	double debut;
-	bool temps_depasse =false;
-
-		
-	//int coeffs_ia[10]={18 ,43, 89, 93 ,6 ,2 ,40};
-	
+{	
 	//---------------
 	//deja mis dans fonctions.c, ce sont les coeffs utilises
 	//int coeffs_ia[10]={88, 15, 34 ,60 ,35, -2 ,27}; // les nouveaux après entrainement intensif 
@@ -118,4 +116,5 @@ int main(int argc,char *argv[])
 
 	freeGameOthello(g);
 	return 0; 
+
 }

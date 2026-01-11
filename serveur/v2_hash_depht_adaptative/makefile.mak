@@ -1,10 +1,20 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
+LDFLAGS = -L. -lothello
 
-all: fonctions.o serveur_ia_bitboard
+# Cibles
+EXEC = serveur_ia_bitboard
+OBJ = fonctions.o
 
-fonctions.o: fonctions.c fonctions.h
-	$(CC) $(CFLAGS) -c fonctions.o fonctions.c
+all: $(EXEC)
 
-serveur_ia_bitboard: serveur_ia_bitboard.c fonctions.h #../fonctions.o
-	$(CC) $(CFLAGS) -L. -o serveur_ia_bitboard serveur_ia_bitboard.c fonctions.o -lothello
+# L'exécutable dépend de l'objet fonctions.o
+$(EXEC): serveur_ia_bitboard.c $(OBJ) fonctions.h
+	$(CC) $(CFLAGS) -o $(EXEC) serveur_ia_bitboard.c $(OBJ) $(LDFLAGS)
+
+# Compilation de l'objet fonctions.o
+$(OBJ): fonctions.c fonctions.h
+	$(CC) $(CFLAGS) -c fonctions.c -o $(OBJ)
+
+clean:
+	rm -f $(OBJ) $(EXEC)

@@ -800,3 +800,47 @@ void jouer_api_humain(int *x, int *y){ // // modifie les pointeurs x et y par le
     printf("Enter your move:\n");
     lire_coup_ia(x,y); //lit le coup de l'utilisateur
 } 
+
+// livre le plus à jour, et pour le hash, true:false indique qui a le tour (true=à blanc de jouer)
+void init_hash_ouvertures(position_connue opening_book[TAILLE_LIVRE_OUVERTURE]){ // ! A faire après init du hash zobrist
+    opening_book[0].key = calculer_hash_complet((1ULL << 28) | (1ULL << 35),(1ULL << 27) | (1ULL << 36),false);
+    opening_book[0].move= 19; //D3
+    
+    opening_book[1].key = calculer_hash_complet((1ULL << 19) | (1ULL << 27) | (1ULL << 35), (1ULL << 20) |(1ULL << 28) | (1ULL << 36),false);
+    opening_book[1].move= 29; //d3-e3-F4 ; erreur des blancs dès le premier coup
+
+    opening_book[2].key = calculer_hash_complet((1ULL << 28) | (1ULL << 29) | (1ULL << 35), (1ULL << 18) |(1ULL << 19) | (1ULL << 20)|(1ULL << 27) | (1ULL << 36) ,false);
+    opening_book[2].move= 37; //d3-e3-F4-c3-f5
+
+    opening_book[3].key = calculer_hash_complet((1ULL << 19) | (1ULL << 28) | (1ULL << 35), (1ULL << 18) |(1ULL << 27) | (1ULL << 36),false);
+    opening_book[3].move= 26; //d3-c3- c4
+
+    /*transpostions blanches, on va dans la position de l'etoile car les deux coups blancs apres sont les deux meilleurs et on transpsoe*/
+    opening_book[4].key = calculer_hash_complet((1ULL << 19) | (1ULL << 27) | (1ULL << 28) | (1ULL << 35) , (1ULL << 36),true);
+    opening_book[4].move= 18; //d3-c3-
+
+    opening_book[5].key = calculer_hash_complet((1ULL << 26) | (1ULL << 27) | (1ULL << 28) | (1ULL << 35) , (1ULL << 36) ,true);
+    opening_book[5].move= 18; //c4-c3
+
+    opening_book[6].key = calculer_hash_complet((1ULL << 28) | (1ULL << 35) | (1ULL << 36) | (1ULL << 37), (1ULL << 27),true);
+    opening_book[6].move= 45; //f5-f6
+
+    opening_book[7].key = calculer_hash_complet((1ULL << 28) | (1ULL << 35) | (1ULL << 36) | (1ULL << 44), (1ULL << 27),true);
+    opening_book[7].move= 45; //e6-f6
+// fin etoile
+    opening_book[8].key = calculer_hash_complet((1ULL << 26) | (1ULL << 27) | (1ULL << 35), (1ULL << 18)| (1ULL << 19)| (1ULL << 20)| (1ULL << 28) | (1ULL << 36),false);
+    opening_book[8].move= 29; //d3-c3-c4-e3-f4, on rentre dans 'the COW'
+
+    opening_book[9].key = calculer_hash_complet((1ULL << 19) | (1ULL << 27) | (1ULL << 28), (1ULL << 18) | (1ULL << 26) | (1ULL << 34) | (1ULL << 35) | (1ULL << 36),false);
+    opening_book[9].move= 43; //d3-c3-c4-c5-d6, on rentre dans 'the COW'
+
+}
+
+int recherche_ouverture(uint64_t hash){
+    /*Cherche dans le livre d'ouvertures(global) si la position associée à hash est connue, au quel cas on renvoie le coup connu. Sinon, renvoie -1*/
+    for (int pos=0; pos< TAILLE_LIVRE_OUVERTURE; pos++){
+        if (opening_book[pos].key == hash) return opening_book[pos].move;
+    }
+    return -1; // Pas de coup connu
+}
+

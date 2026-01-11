@@ -34,6 +34,7 @@ int main(int argc,char *argv[])
     initialiser_plateau_bitboard(&plateau);
     init_zobrist(); // la table de correspondance des hash
     uint64_t hash= calculer_hash_complet(plateau.noir, plateau.blanc,false); // le hash est de base à celui de la position initiale, avec trait aux noirs
+	init_hash_ouvertures(opening_book);
 
     //int nb_coup_jouees=0; //compte le nombre de jeton poses pour avoir une idee de ou en est la partie
 
@@ -70,9 +71,10 @@ int main(int argc,char *argv[])
 					//printf("Received move from server %d (x=%d,y=%d)\n",g->move,g->move%8,g->move/8);
                     // actualise notre plateau avec le coup de l'adversaire
                     if (g->move != 64){
-						jouer_coup_bitboard(&plateau,g->move,!g->myColor); 
+						jouer_coup_bitboard_hash(&plateau,&hash,g->move,!g->myColor); 
 						//nb_coup_jouees++;
 					}
+					else{hash ^= ZOBRIST_TOUR;}
 				}
 			}
 		}
@@ -95,9 +97,10 @@ int main(int argc,char *argv[])
 			doMoveOthello(g);	// envoie du coup à l'adversaire/ au serveur
             
             if (g->move != 64) {
-				jouer_coup_bitboard(&plateau,g->move,g->myColor);// jouer le coup sur notre plateau
+				jouer_coup_bitboard_hash(&plateau,&hash,g->move,g->myColor);// jouer le coup sur notre plateau
             	//nb_coup_jouees++;
 			}
+			else{hash ^= ZOBRIST_TOUR;}
             //afficher_plateau_bitboard(plateau);// affiche le coup qu'on a joue
 	   	}
 		g->currentPlayer=!g->currentPlayer; 
@@ -118,3 +121,4 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+

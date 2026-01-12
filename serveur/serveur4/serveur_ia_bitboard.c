@@ -18,7 +18,7 @@
 
 
 /*Variables globales pour la gestion du temps ecoule*/
-double limite_temps = 0.1; // secondes ----------------------------------A changer en 14-15s pr le tournoi, à tester ------------------
+double limite_temps = 14; // secondes ----------------------------------A changer en 14-15s pr le tournoi, à tester ------------------
 double debut;
 bool temps_depasse =false;
 
@@ -61,7 +61,7 @@ int main(int argc,char *argv[])
 		return (EXIT_FAILURE); 
 	}
 	
-	//printf("I am player %s\n",(g->myColor==BLACK)?"Black":"White"); 
+	printf("I am player %s\n",(g->myColor==BLACK)?"Black":"White"); 
     //printf("%d\n",g->myColor);
 
 	// Début de partie
@@ -100,7 +100,10 @@ int main(int argc,char *argv[])
 				for (int d=1; d<20; d++){ //------------------------------------------------------------ A changer, on peut partir de plus haut sans trop de problemes
 					//if (minimax_hash_temporel(d, &(g->move) ,-INF-10,INF+10, g->myColor,  coeffs_ia, plateau,hash)==678 ) break; // Minimax n'a pas eu le temps de finir son execution, on stoppe les appels à minimax
 					minimax_hash_temporel(d, &(g->move) ,-INF-10,INF+10, g->myColor, plateau,hash);
-					if (temps_depasse) break;
+					if (temps_depasse) {
+						printf("on a pu aller à Depth=%d \n", d-1 );// A commenter pour le tournoi et pas perdre de temps
+						break;
+					}
 					d++;
 				}
 			}
@@ -138,4 +141,5 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+
 

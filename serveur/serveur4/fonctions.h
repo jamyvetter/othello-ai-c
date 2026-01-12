@@ -1,3 +1,5 @@
+// Code allégé (pas toutes les fonctions) et compressé, pour fonctionner de manière optimale au tournoi
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,6 +29,9 @@ double obtenir_temps(); // Mesure le temps sur un double
 /*Infos:
 Deux bitboard: 1 pour les blancs et 1 pour les noirs, 1=jeton sur la case; 0= pas de jeton.
 La combinaison des deux (| ou) = le plateau des cases occupees
+
+
+Documentation: https://www.geeksforgeeks.org/c/builtin-functions-gcc-compiler/ pour les fonctions ultra rapides assembleur (ex: __builtin_popcount() )
 */
 
 // On utilise uint64_t : un entier non signé de 64 bits exactement
@@ -137,3 +142,4 @@ void init_hash_ouvertures(position_connue opening_book[TAILLE_LIVRE_OUVERTURE]);
 
 int recherche_ouverture(uint64_t hash);//Cherche dans le livre d'ouvertures(global) si la position associée à hash est connue, 
 // au quel cas on renvoie le coup connu. Sinon, renvoie -1
+

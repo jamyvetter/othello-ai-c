@@ -799,6 +799,8 @@ void traduction_x_y_vers_entier(int x,int y, int*p){
 void jouer_api_humain(int *x, int *y){ // // modifie les pointeurs x et y par le coup entré par l'utilisateur humain sous format : "a-h1-8"
     printf("Enter your move:\n");
     lire_coup_ia(x,y); //lit le coup de l'utilisateur
+
+	// NOTE: modifier pour que ça vérifie que le coup est légal
 } 
 
 
@@ -845,3 +847,4 @@ int recherche_ouverture(uint64_t hash){
     }
     return -1; // Pas de coup connu
 }
+

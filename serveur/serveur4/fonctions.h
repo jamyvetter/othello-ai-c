@@ -1,4 +1,4 @@
-// Code allégé (pas toutes les fonctions) et compressé, pour fonctionner de manière optimale au tournoi
+// Code allégé (pas toutes les fonctions) et compressé, pour fonctionner de manière optimale lors du tournoi
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,23 +13,20 @@
 #define VIDE '.'
 #define BLACK 0
 
-#define INF 999999 // valeur maximale théoriquement inateignable
+#define INF 999999 // valeur maximale lors d'une évaluation d'une position (inateignable)
 
+//Variables globales pour la gestion du temps ecoule
 extern  unsigned long long nb_noeuds_vus; // Le nombre d'appel recursifs de minimax
+extern double limite_temps; // en secondes
+extern double debut; // le moment où on commence à réflechir
+extern bool temps_depasse; // passe à true quand on a mis trop de temps
 
-/*Variables globales pour la gestion du temps ecoule*/
-extern double limite_temps; // secondes
-extern double debut;
-extern bool temps_depasse;
-
-double obtenir_temps(); // Mesure le temps sur un double
-
+double obtenir_temps(); // Mesure le temps et le stocke dans un double
 
 // Fonctions de gestion du bitboard  --------------------------------------------------------------------
 /*Infos:
 Deux bitboard: 1 pour les blancs et 1 pour les noirs, 1=jeton sur la case; 0= pas de jeton.
 La combinaison des deux (| ou) = le plateau des cases occupees
-
 
 Documentation: https://www.geeksforgeeks.org/c/builtin-functions-gcc-compiler/ pour les fonctions ultra rapides assembleur (ex: __builtin_popcount() )
 */
@@ -37,44 +34,35 @@ Documentation: https://www.geeksforgeeks.org/c/builtin-functions-gcc-compiler/ p
 // On utilise uint64_t : un entier non signé de 64 bits exactement
 typedef uint64_t Bitboard;
 
-// Structure de jeu
+// Structure de jeu nommé Plateau
 typedef struct {
     Bitboard noir;   // Pions noirs    
     Bitboard blanc; // Pions blancs
 } Plateau;
 
-void initialiser_plateau_bitboard(Plateau *jeu);
-void afficher_bitboard(Bitboard b);
-void afficher_plateau_bitboard(Plateau jeu);
+void initialiser_plateau_bitboard(Plateau *jeu); // Modifie jeu en la position de base
+void afficher_bitboard(Bitboard b); // affiche le bitboard précisé avec des croix sur les jetons du joueur
+void afficher_plateau_bitboard(Plateau jeu); // affiche le plateau, N=case avec jeton noir et B=case avec jeton blanc
 
-void jouer_coup_bitboard(Plateau *p, int index_0_63, bool tour);
+void jouer_coup_bitboard(Plateau *p, int index_0_63, bool tour); // Joue le coup de la perspective du joueur tour
 
-int est_coup_legal(Plateau p, bool tour, int coup); // pas necessaire ici peut etre à cacher à l'user
+int est_coup_legal(Plateau p, bool tour, int coup); // Vérifie qu'on coup (entier de 0à63) est legal (== retourne des jetons et coup est une case vide)
 
-int peut_jouer_bitboard(Plateau p, bool tour);
-
-bool peut_jouer_bb(Bitboard moi, Bitboard adv);
-
-bool fin_de_partie_bitboard(Plateau p);
+int peut_jouer_bitboard(Plateau p, bool tour);// obsolète
+bool peut_jouer_bb(Bitboard moi, Bitboard adv);// vérifie que le joueur moi a des coups dispoibles
+bool fin_de_partie_bitboard(Plateau p); // true quand aucun joueur n'a de coup disponible
 Bitboard coups_possibles(Bitboard moi, Bitboard adv) ; // renvoie le bitboard des coups possibles
 
-int evaluation_bitboard(Plateau p);// evalue un plateau, comme d'habitude
 
-// Format du tableau coeff: undefined for now
 
-int minimax_bitboard_ia(int depth,int *best_move,int alpha, int betha, bool tour, int gene[7],Plateau plateau);
+int evaluation_bitboard(Plateau p);// évalue un plateau avec -X si les noirs sont mieux et +X si les blancs sont mieux
 
 //Fin Fonctions de gestion du bitboard  --------------------------------------------------------------------
 
+// IAS diverses
 
-// Fonctions pour la mécanique de jeu
-
-//On definit deux structures afin de jouer un coup et de retenir les cases affectées par ce coup (pour pouvoir faire des retours en arrière)
-
-
-
-void ordi_random_bitboard(int *p, bool tour,Plateau plateau);
-void ordi_greedy_bitboard(int *p, bool tour,Plateau plateau);// Modifie p  avec un coup qui maximise le nombre de jetons du joueur tour
+void ordi_random_bitboard(int *p, bool tour,Plateau plateau); // IA qui joue un coup aléatoirement (pas vraiment) parmi ses possibilitées
+void ordi_greedy_bitboard(int *p, bool tour,Plateau plateau);// Modifie p  avec un coup qui maximise le nombre de jetons du joueur tour à une profondeur 1
 
 
 // Fonctions d'interface utilisateur -----------------------------------------------------------
@@ -92,7 +80,11 @@ void jouer_api_humain(int *x, int *y); // // modifie les pointeurs x et y par le
 
 
 
-// NOUVEAU ZOBRIST HASH:
+/* HASH ZOBRIST:
+En résumé, on hash chaque position analysée dans la table TT_ENTRY
+Les hash fonctionnent avec des XOR (car réversible et donc rapide)
+Pour retrouver les position déjà analysées, on vérifie que la key de la position corresponde à celle stockée dans TT_ENTRY (pour plus d'infos voir code dans minimax)
+*/
 
 #define TT_SIZE (1 << 20) // Environ 1 million d'entrées
 #define TT_FLAG_EXACT 2
@@ -103,7 +95,7 @@ typedef struct {
     uint64_t key;   // Le hash complet (pour vérifier les collisions)
     int depth;      // La profondeur à laquelle ce score a été calculé
     int score;      // Le score trouvé
-    int flag;       // EXACT, ALPHA (borne sup) ou BETA (borne inf)
+    int flag;       // TT_FLAG_EXACT, TT_FLAG_UPPER (borne sup) ou TT_FLAG_LOWER (borne inf)
     int best_move;  // Le meilleur coup trouvé ici
 } TT_Entry;
 
@@ -111,21 +103,25 @@ typedef struct {
 // Reference extern au fichier fonctions.c , on met ces tableaux en global sinon trop de choses à retenir lors des appels recursifs pour le processeur
 extern uint64_t ZOBRIST_TABLE[64][2]; // 64 cases, 2 couleurs
 extern uint64_t ZOBRIST_TOUR;         // Pour hacher le tour de jeu
-extern TT_Entry transposition_table[TT_SIZE]; // doit etre declare ailleurs lol
+extern TT_Entry transposition_table[TT_SIZE];
+
+// Note de programmation: si on veut utiliser ces variables globales dans un .c , il faut les déclarer AVANT le main et une seule fois.
 
 
-
-void init_zobrist(); // intialise le tableau zobrist avec un hash pour chaque combo case/couleur
+void init_zobrist(); // intialise le tableau zobrist avec un hash pour chaque combo case/couleur, aléatoirement
 uint64_t calculer_hash_complet(Bitboard noir, Bitboard blanc, bool tour); // calcule le hash d'une position à partir des bitboards
 
 
 void jouer_coup_bitboard_hash(Plateau *p, uint64_t *nouveau_hash, int index_0_63, bool tour); // modifie aussi nouveau_hash selon les pions retournes
 
+// Le minimax dépend des variables globales de temps, et demande aussi le hash de la position
 int minimax_hash_temporel(int depth,int *best_move,int alpha, int betha, bool tour,Plateau plateau,uint64_t hash); //version adaptative du temps restant
 
 
-/*NOUVEAU, ouvertures
+/*
+Ouvertures
 On part du principe que tout le monde va jouer en haut à gauche au début: d3
+J'ai codé manuellement des ouvertures sur lesquelles l'IA avait du mal
 */
 
 
@@ -142,4 +138,5 @@ void init_hash_ouvertures(position_connue opening_book[TAILLE_LIVRE_OUVERTURE]);
 
 int recherche_ouverture(uint64_t hash);//Cherche dans le livre d'ouvertures(global) si la position associée à hash est connue, 
 // au quel cas on renvoie le coup connu. Sinon, renvoie -1
+
 

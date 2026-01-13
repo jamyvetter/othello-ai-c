@@ -8,6 +8,15 @@
 
 // Programme US1: permet de faire jouer une partie d'othello à deux humains en local
 // Fonctionne dans le dossier serveur4, compile avec:
+//gcc US1.c fonctions.o fonctions.h -o US1 -Wall -Wextra
+
+// Je viens d'apprendre que des variables globales doivent forcément apparaitre quelque part...
+// J'en mets donc ici des inutiles, mais ça sert pour compiler
+// Pour régler ce problème, il faut les déclarer dans fonctions.c vu qu'elles sont utilisées là bas
+
+double limite_temps=0.1,debut;
+bool temps_depasse=false;
+position_connue opening_book[TAILLE_LIVRE_OUVERTURE];
 
 int main(){
 
@@ -42,7 +51,7 @@ int main(){
         int scoreB, scoreN;//Variables de score
         scoreB=__builtin_popcountll(plateau.blanc);scoreN=__builtin_popcountll(plateau.noir); 
         if( scoreB> scoreN )printf("Les blancs ont gagnes; scoreB= %d - scoreN= %d \n",scoreB,scoreN);
-        else if( scoreN> scoreN )printf("Les noirs ont gagnes; scoreB= %d - scoreN= %d \n",scoreB,scoreN);
+        else if( scoreN> scoreB )printf("Les noirs ont gagnes; scoreB= %d - scoreN= %d \n",scoreB,scoreN);
         else printf("Chess played perfectly is a draw (ok c'est du othello)\n");
 
         return 0;

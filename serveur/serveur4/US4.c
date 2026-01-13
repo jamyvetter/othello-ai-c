@@ -42,9 +42,36 @@ int main(){
     while(!fin_de_partie_bitboard(plateau)){
         if (peut_jouer_bb(tour?plateau.blanc:plateau.noir,tour?plateau.noir:plateau.blanc)) { // sinon on lui passe le tour
             
-            if ((ia_a_les_blancs && tour) || (!ia_a_les_blancs && !tour)){ // c'est un NXOR mais flemme d'opti
-                        
-                ordi_random_bitboard(&p,tour,plateau); 
+            if ((ia_a_les_blancs && tour) || (!ia_a_les_blancs && !tour)){ // c'est un NXOR mais flemme d'opti      
+            
+			//ordi_random_bitboard(&p,tour,plateau); // IA bonus pour avoir plus de chances de gagner
+			
+				//Determination du meilleur coup:
+			if (nb_coup_jouees<6){ // on recherche dans la base d'ouverture seulement si on est au début de la partie (pour ne pas perdre du temps)
+				debut=obtenir_temps(); temps_depasse=false; // Reset des variables globales (sauf limite_temps)
+				p= recherche_ouverture(hash);
+				// On fait aussi les verifications de colision, si le coup a l'air valide on peut prendre le temps d'être sûr qu'il est légal
+				if (p == -1 || p < 0 || p > 63 || 
+				(!(coups_possibles( (tour==BLACK)?plateau.noir:plateau.blanc , (tour==BLACK)?plateau.blanc:plateau.noir )& (1ULL << p) ) ) ) goto recherche_classique; // on appelle minimax car on ne connait pas la position
+			}
+			else{
+				// On calcule à une profondeur supplémentaire jusqu'à se faire timeout
+				debut=obtenir_temps(); temps_depasse=false; // Reset des variables globales (sauf limite_temps)
+				recherche_classique:
+				for (int d=1; d<20; d++){ //------------------------------------------------------------ A changer, on peut partir de plus haut sans trop de problemes
+					minimax_hash_temporel(d, &(p) ,-INF-10,INF+10, tour, plateau,hash);
+					if (temps_depasse) {
+						printf("on a pu aller à Depth=%d \n", d-1 );// A commenter pour le tournoi et pas perdre de temps
+						break;
+					}
+					d++;
+				}
+			}
+			printf("L IA pense que le bon coup est:");
+            envoyer_coup_serveur(p/8,p%8); // Affiche le coup choisi par l'IA (ici US3 donc c'est juste une petite aide)
+
+
+				
             }
             else{ // JOUEUR 2: HUMAIN  
                 do {
@@ -75,3 +102,4 @@ int main(){
 
         return 0;
     }
+

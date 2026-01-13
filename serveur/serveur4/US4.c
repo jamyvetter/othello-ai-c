@@ -40,7 +40,7 @@ int main(){
 
     bool ia_a_les_blancs=false; // apres demande pr savoir quelle couleur joue l'IA: Noir=false; true= blanc
     while(!fin_de_partie_bitboard(plateau)){
-		afficher_plateau_bitboard(plateau); printf("C'est au tour des %s \n",tour?",Blancs":"Noirs");
+	afficher_plateau_bitboard(plateau); printf("C'est au tour des: %s \n",tour?"Blancs":"Noirs");
         if (peut_jouer_bb(tour?plateau.blanc:plateau.noir,tour?plateau.noir:plateau.blanc)) { // sinon on lui passe le tour
             
             if ((ia_a_les_blancs && tour) || (!ia_a_les_blancs && !tour)){ // c'est un NXOR mais flemme d'opti      
@@ -48,6 +48,7 @@ int main(){
 			//ordi_random_bitboard(&p,tour,plateau); // IA bonus pour avoir plus de chances de gagner
 			
 				//Determination du meilleur coup:
+
 			if (nb_coup_jouees<6){ // on recherche dans la base d'ouverture seulement si on est au début de la partie (pour ne pas perdre du temps)
 				debut=obtenir_temps(); temps_depasse=false; // Reset des variables globales (sauf limite_temps)
 				p= recherche_ouverture(hash);
@@ -68,6 +69,10 @@ int main(){
 					d++;
 				}
 			}
+
+	// Decommenter les deux lignes suivantes pour tester à profondeur fixe	
+//debut= obtenir_temps(); temps_depasse=false;
+	//minimax_hash_temporel(1, &p, -INF-10,INF+10,tour, plateau,hash); // depth fixe car bug jsp
 			printf("L IA pense que le bon coup est:");
             envoyer_coup_serveur(p/8,p%8); // Affiche le coup choisi par l'IA (ici US3 donc c'est juste une petite aide)
 
@@ -84,24 +89,23 @@ int main(){
                 } while ( p<0 || p>63 || !est_coup_legal(plateau,tour,p));
                 
             }
-            printf("On va jouer jouer le coup %d\n",p);
-            jouer_coup_bitboard(&plateau,p,tour);
+
+            printf("On va jouer jouer le coup determine: %d\n",p);
+            jouer_coup_bitboard_hash(&plateau,&hash,p,tour); // update aussi le hash pour l'IA
             //afficher_plateau_bitboard(plateau);
             nb_coup_jouees++;
         }
         else{
             printf("On a du passer le tour du joueur par manque de coup legaux\n");
+		hash ^= ZOBRIST_TOUR; // Bien penser à changer le hash quand on change de tour sans jouer de coup!!
         } 
         tour=!tour; // changement de joueur    
         }	
         scoreB=__builtin_popcountll(plateau.blanc);scoreN=__builtin_popcountll(plateau.noir); 
-        int res=0; // 0 = nulle, -1= IA gagne et 1: joueur humain gagne
         if( ((ia_a_les_blancs) && (scoreB> scoreN )) || ((!ia_a_les_blancs) && (scoreB< scoreN ) ) )printf("L'IA a gagne, impressionnant!\n");
         else if (scoreB == scoreN) printf("C'est une partie nulle, impressionnant!\n");
         else printf("L'humain a gagne, impressionnant!\n");
 
-
         return 0;
     }
-
 

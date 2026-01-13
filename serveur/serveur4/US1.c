@@ -17,9 +17,7 @@ int main(){
     
     bool tour=false; // qui peut jouer, true-> Blancs ; false-> Noirs
     int p; // valeur du coup a jouer, 0<=p<=63
-
-
-    bool ia_a_les_blancs=false; // apres demande pr savoir quelle couleur joue l'IA: Noir=false; true= blanc
+	
     while(!fin_de_partie_bitboard(plateau)){
 		afficher_plateau_bitboard(plateau); printf("C'est au tour des: %s \n",tour?"Blancs":"Noirs");
         
@@ -43,9 +41,10 @@ int main(){
         
         int scoreB, scoreN;//Variables de score
         scoreB=__builtin_popcountll(plateau.blanc);scoreN=__builtin_popcountll(plateau.noir); 
-        if( scoreB> scoreN )printf("Les blancs ont gagnes; scoreB= %d - scoreN= %d \n");
-        else if( scoreN> scoreN )printf("Les noirs ont gagnes; scoreB= %d - scoreN= %d \n");
+        if( scoreB> scoreN )printf("Les blancs ont gagnes; scoreB= %d - scoreN= %d \n",scoreB,scoreN);
+        else if( scoreN> scoreN )printf("Les noirs ont gagnes; scoreB= %d - scoreN= %d \n",scoreB,scoreN);
         else printf("Chess played perfectly is a draw (ok c'est du othello)\n");
 
         return 0;
     }
+

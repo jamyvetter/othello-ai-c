@@ -40,6 +40,7 @@ int main(){
 
     bool ia_a_les_blancs=false; // apres demande pr savoir quelle couleur joue l'IA: Noir=false; true= blanc
     while(!fin_de_partie_bitboard(plateau)){
+		afficher_plateau_bitboard(plateau); printf("C'est au tour des %s \n",tour?",Blancs":"Noirs");
         if (peut_jouer_bb(tour?plateau.blanc:plateau.noir,tour?plateau.noir:plateau.blanc)) { // sinon on lui passe le tour
             
             if ((ia_a_les_blancs && tour) || (!ia_a_les_blancs && !tour)){ // c'est un NXOR mais flemme d'opti      
@@ -85,7 +86,7 @@ int main(){
             }
             printf("On va jouer jouer le coup %d\n",p);
             jouer_coup_bitboard(&plateau,p,tour);
-            afficher_plateau_bitboard(plateau);
+            //afficher_plateau_bitboard(plateau);
             nb_coup_jouees++;
         }
         else{
@@ -102,4 +103,5 @@ int main(){
 
         return 0;
     }
+
 

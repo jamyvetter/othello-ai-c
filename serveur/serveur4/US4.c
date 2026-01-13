@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include <sys/time.h>
-#include "userNetwork.h"
 #include "fonctions.h"
 
 // Programme US4: permet de faire jouer un humain contre une IA en local (qui joue selon un temps donné)
@@ -108,4 +107,5 @@ int main(){
 
         return 0;
     }
+
 

@@ -6,7 +6,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../fonctions.h" 
+#include "fonctions.h" 
+
+
+
+// variables globales obligatoirs, explique dans US1 ce pb
+double limite_temps=0.1;double debut;bool temps_depasse=false;
+position_connue opening_book[TAILLE_LIVRE_OUVERTURE];
+
+
+
+
+
+
+
+
 
 // --- Conventions du fichier de test 
 #define TEST_BLACK 0

@@ -40,7 +40,7 @@ int main(){
 
     bool ia_a_les_blancs=false; // apres demande pr savoir quelle couleur joue l'IA: Noir=false; true= blanc
     while(!fin_de_partie_bitboard(plateau)){
-        if (peut_jouer_bb(plateau,tour)) { // sinon on lui passe le tour
+        if (peut_jouer_bb(tour?plateau.blanc:plateau.noir,tour?plateau.noir:plateau.blanc)) { // sinon on lui passe le tour
             
             if ((ia_a_les_blancs && tour) || (!ia_a_les_blancs && !tour)){ // c'est un NXOR mais flemme d'opti
                         
@@ -51,7 +51,8 @@ int main(){
                     printf("Entre un coup valide sous format: ex:f5 \n");
                     char colonne; int ligne;
                     scanf(" %c%d", &colonne,&ligne); //On me un espace pour éviter le bug de double demande (sinon la solution alternative est while(getchar\n))
-                    p= (colonne - 'a')%8 + (ligne - 1)/8 ;
+                    p= (colonne - 'a') + (ligne - 1)*8;
+			printf("Coup compris: %d \n",p);
                 } while ( p<0 || p>63 || !est_coup_legal(plateau,tour,p));
                 
             }

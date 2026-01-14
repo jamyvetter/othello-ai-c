@@ -803,7 +803,8 @@ void jouer_api_humain(int *x, int *y){ // // modifie les pointeurs x et y par le
 	// NOTE: modifier pour que ça vérifie que le coup est légal
 } 
 
-
+// Les ouvertures ont été trouvées sur ce site: https://samsoft.org.uk/reversi/bigbook.asp
+// J'ai manuellement mis les positions où l'IA avait faux.
 // livre le plus à jour, et pour le hash, true:false indique qui a le tour (true=à blanc de jouer)
 void init_hash_ouvertures(position_connue opening_book[TAILLE_LIVRE_OUVERTURE]){ // ! A faire après init du hash zobrist
     opening_book[0].key = calculer_hash_complet((1ULL << 28) | (1ULL << 35),(1ULL << 27) | (1ULL << 36),false);
@@ -847,4 +848,5 @@ int recherche_ouverture(uint64_t hash){
     }
     return -1; // Pas de coup connu
 }
+
 

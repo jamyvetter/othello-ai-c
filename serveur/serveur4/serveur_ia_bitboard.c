@@ -98,13 +98,11 @@ int main(int argc,char *argv[])
 				debut=obtenir_temps(); temps_depasse=false; // Reset des variables globales (sauf limite_temps)
 				recherche_classique:
 				for (int d=1; d<20; d++){ //------------------------------------------------------------ A changer, on peut partir de plus haut sans trop de problemes
-					//if (minimax_hash_temporel(d, &(g->move) ,-INF-10,INF+10, g->myColor,  coeffs_ia, plateau,hash)==678 ) break; // Minimax n'a pas eu le temps de finir son execution, on stoppe les appels à minimax
 					minimax_hash_temporel(d, &(g->move) ,-INF-10,INF+10, g->myColor, plateau,hash);
-					if (temps_depasse) {
-						printf("on a pu aller à Depth=%d \n", d-1 );// A commenter pour le tournoi et pas perdre de temps
+					if (temps_depasse) { // Si la variable globale a été changée pour cause de temps dépassé
+						printf("on a pu aller à Depth=%d \n", d-1 );//On indique jusqu'où on est allé //A commenter pour le tournoi et pas perdre de temps
 						break;
 					}
-					d++;
 				}
 			}
 
@@ -141,5 +139,6 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+
 
 

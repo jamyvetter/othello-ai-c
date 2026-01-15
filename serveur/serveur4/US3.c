@@ -103,7 +103,7 @@ int main(int argc,char *argv[])
             // Choix du coup de l'humain
             if ( peut_jouer_bb( (g->myColor==BLACK)?plateau.noir:plateau.blanc , (g->myColor==BLACK)?plateau.blanc:plateau.noir ) ){ // Sinon le coup reste 64=pass
                 do {
-                    printf("Entre un coup valide sous format: ex:f5 \n");
+                    printf("Entre un coup valide sous format: ex:f5 \n"); printf("Tu joues les: %s\n",(g->myColor==BLACK)?"Black":"White"); // On rappelle au joueur qui il est
                     char colonne; int ligne;
                     scanf(" %c%d", &colonne,&ligne); //On me un espace pour éviter le bug de double demande (sinon la solution alternative est while(getchar\n))
                     g->move= (colonne - 'a') + (ligne - 1)*8 ;
@@ -144,4 +144,5 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+
 

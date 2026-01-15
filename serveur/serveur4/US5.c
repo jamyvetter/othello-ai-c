@@ -1,9 +1,7 @@
-// Programme pour les 1v1s othello (le tournoi sur le serveur)
-
+// Programme pour les 1v1s othello (le tournoi sur le serveur) : US5
 // Version optimisée avec hashage zobrist et profondeur adaptative
 
 //ligne d'execution: makefile sur github
-
 // A faire avant : export LD_LIBRARY_PATH=.
 
 
@@ -139,6 +137,7 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+
 
 
 

@@ -1,119 +1,185 @@
-// Fichier test fonction qui joue un coup pour le bitboard
-// Compile avec gcc .\test_unitaires.c ..\fonctions.c -o test -Wall -Wextra
-// Excutable avec ./test à condition que savedGames_ soit dans le même dossier
+//US2
+//  Code pour vérifier la mécanique de jeu (jouer_coup)
+// Vérifie aussi que le hashage des positions fonctionne et que la fonction pour savoir si le coup est legal fonctionne aussi.
+// Compile avec gcc .\US2.c .\fonctions.c -o US2 -Wall -Wextra
+// s'éxécute avec .\US2 .\savedGames_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+// NOTE: Tous les tests sont validés, et infos en plus dans la fonction faire_coup sur un 'bug' vu.
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <stdint.h> 
+#include <errno.h>
 #include <stdbool.h>
 #include "fonctions.h" 
 
+#define N 8 
+#define BLACK 1 
+#define WHITE 0 
+#define EMPTY 2 
 
+#define CONVENTIONOK 
 
+#ifdef CONVENTIONOK 
+typedef int8_t monType ;
+#else 
+typedef int32_t monType;
+#define MYBLACK 1 
+#define MYWHITE 0 
+#define MYEMPTY 2 
+#endif 
+
+//---------------------------------------------------
 // variables globales obligatoirs, explique dans US1 ce pb
 double limite_temps=0.1;double debut;bool temps_depasse=false;
 position_connue opening_book[TAILLE_LIVRE_OUVERTURE];
+//---------------------------------------------------
+
+
+void afficheTableau(monType tableau[N][N]) 
+{
+	for (int i=0;i<N;i++) {
+		for (int j=0;j<N;j++) {
+			printf("%c ",tableau[i][j]==2?'.':'0'+tableau[i][j]); 
+		} 
+		printf("\n"); 
+	}
+	printf("\n\n\n"); 
+
+}
 
 
 
-
-// --- Conventions du fichier de test 
-#define TEST_BLACK 0
-#define TEST_WHITE 1
-#define TEST_EMPTY 2
-
-// Structure pour lire une entrée du fichier binaire brut
-// Attention : on lit les données brutes, on convertira après
-void run_tests(const char* filename) {
-    FILE *f = fopen(filename, "rb");
-    if (!f) {
-        perror("Impossible d'ouvrir savedGames_");
-        return;
-    }
-
-    int8_t board_in[64];    // Plateau initial (format fichier)
-    int8_t move_data[2];    // Coup (index, couleur)
-    int8_t board_out[64];   // Résultat attendu (format fichier)
-
-    int test_id = 0;
-    int tests_reussis = 0;
-
-    printf("Demarrage des tests...\n");
-
-    // Boucle de lecture : on lit bloc par bloc
-    while (fread(board_in, sizeof(int8_t), 64, f) == 64) {
-        fread(move_data, sizeof(int8_t), 2, f);
-        fread(board_out, sizeof(int8_t), 64, f);
-
-        test_id++;
-        Plateau p = {0, 0};
-        
-        for (int i = 0; i < 64; i++) {
-            if (board_in[i] == TEST_BLACK) {
-                p.noir |= (1ULL << i);
-            } else if (board_in[i] == TEST_WHITE) {
-                p.blanc |= (1ULL << i);
-            }
+// Assume we have a function that modifies our board 
+int faireCoupOthello(monType tableau[N][N],int8_t coup,int8_t couleur){
+	Plateau p={0,0};
+	// copie les donnees de tableau[N][N] dans notre structure de Bitboard
+	for(int i=0; i<N*N; i++){
+		if (tableau[i/8][i%8] == BLACK) {
+            p.noir |= (1ULL<< i);
         }
-
-        int index_coup = move_data[0];
-        int couleur_coup = move_data[1];
-        
-        bool est_blanc = (couleur_coup == TEST_WHITE);
-
+		else if (tableau[i/8][i%8] == WHITE) {
+            p.blanc |= (1ULL<< i);
+        }
+	}
+	//jouer_coup_bitboard(&p, coup, couleur); // Joue le coup sur les Bitboard
+	
+    
         // Jouer le coup demandé
         // NOTE: erreur si le coup demande est 64, par choix de codage je décide que on verifie à l'exterieur de jouer_coup que le coup ne soit pas pass.
-        // ça permet notamment de faire moins de requete if move!= 64 dans chaque appel de joeur coup dans minimax (ce qui serait long) 
-        
-
-        
-        
-        Bitboard nouveau_hash= calculer_hash_complet(p.noir,p.blanc,est_blanc);
-
+        // ça permet notamment de faire moins de requete if move!= 64 dans chaque appel de jouer_coup dans minimax (ce qui serait long) 
+        Bitboard nouveau_hash= calculer_hash_complet(p.noir,p.blanc,couleur);
         // On vérifie au passage la fonction coups_possibles pour voir si on savait bien que ce coup est legal
-        if ( coups_possibles(est_blanc?p.blanc:p.noir,est_blanc?p.noir:p.blanc)& (1ULL << index_coup) ) jouer_coup_bitboard_hash(&p, &nouveau_hash, index_coup,est_blanc);
-        //jouer_coup_bitboard(&p, index_coup, est_blanc); // Commenté mais marche aussi
+        if ( coups_possibles(couleur?p.blanc:p.noir,couleur?p.noir:p.blanc)& (1ULL << coup) ) jouer_coup_bitboard_hash(&p, &nouveau_hash, coup,couleur);
+        //jouer_coup_bitboard(&p, coup, couleur); // Commenté mais marche aussi
          
         
-        if (index_coup==64) nouveau_hash ^= ZOBRIST_TOUR; // Si le coup est pass, on doit hasher le tour 
-        if (calculer_hash_complet(p.noir,p.blanc,!est_blanc) != nouveau_hash) printf("erreur move:%d %lld %lld\n",index_coup,nouveau_hash,calculer_hash_complet(p.noir,p.blanc,!est_blanc));
-
-        bool success = true; // pour savoir si le coup a fait le resultat attendu
+        if (coup==64) nouveau_hash ^= ZOBRIST_TOUR; // Si le coup est pass, on doit hasher le tour 
         
-        for (int i = 0; i < 64; i++) {
-            int8_t valeur_attendue = board_out[i];
-            int8_t valeur_reelle = TEST_EMPTY; // Par défaut vide
+        if (calculer_hash_complet(p.noir,p.blanc,!couleur) != nouveau_hash) { // SI le hashage a mal fonctionné( jouer_coup_bitboard n'a pas bien modifié le hash)    
+            printf("erreur de hashage pour le coup:%d hashs: %llx %llx %llx\n",coup,nouveau_hash,calculer_hash_complet(p.noir,p.blanc,!couleur), nouveau_hash^ZOBRIST_TOUR);
+            printf("plateau avant le coup:\n");afficheTableau(tableau);
+            printf("plateau après le coup:\n");afficher_plateau_bitboard(p);
 
-            // On regarde ce qu'il y a dans le bitboard à l'index i
-            if ((p.noir >> i) & 1ULL) {
-                valeur_reelle = TEST_BLACK;
-            } else if ((p.blanc >> i) & 1ULL) {
-                valeur_reelle = TEST_WHITE;
-            }
+            /*
+            NOTE sur ces tests: Il y a une position du jeu de test qui fait jouer un coup illégal(une case déjà prise). C'est donc un cas où le hash 'bug' car il n'actualise pas le changement de tour. 
+            (on sait ça car nouveau_hash^ZOBRIST_TOUR donne le bon hash)
+            Mais en réalité on s'en fiche car en vraie partie on ne joue pas de coup illégaux
+            */
 
-            if (valeur_reelle != valeur_attendue) {
-                success = false;
-                printf("[ECHEC] Test #%d : Erreur a l'index %d.\n", test_id, i);
-                printf("Attendu: %d, Obtenu: %d\n", valeur_attendue, valeur_reelle);
-                break; // Pas la peine de continuer ce test
-            }
         }
 
-        if (success) {
-            tests_reussis++;
-        } else {
-            printf(" -> Coup joue : index %d, couleur %s\n", index_coup, est_blanc ? "BLANC" : "NOIR");
-            afficher_plateau_bitboard(p); // si erreur on veut voir le plateau fautif
+
+
+    //récupère les bitboards modifiés (le plateau) et les mets dans le tableau qu'on avait en entrée
+	for(int i=0; i<N*N; i++){
+		if ( (p.noir >> i ) & 1ULL) { // si il y a un jeton à l'index i sur le plateau noir
+            tableau[i/8][i%8]= BLACK;
         }
-    }
-
-    fclose(f);
-    printf("------------------------------------------------\n");
-    printf("RESULTAT FINAL : %d / %d tests reussis.\n", tests_reussis, test_id);
+		else if ( (p.blanc >> i ) & 1ULL) {
+            tableau[i/8][i%8]= WHITE;
+        }
+	}
 }
 
-int main() {
-    init_zobrist();
-    run_tests("savedGames_");
-    return 0;
+
+int dansTableau(int i, int j) 
+{
+	return ((i>=0) && (i<N) && (j>=0) && (j<N)); 
 }
+
+int lireCoup(int8_t *coup,int8_t *couleur, FILE *savedGames) 
+{
+	int res=0; 
+	res=fread(coup,sizeof(int8_t),1,savedGames); 
+	if (res) res=fread(couleur,sizeof(int8_t),1,savedGames); 
+#ifndef CONVENTIONOK 
+	*couleur=(*couleur==BLACK)?MYBLACK:MYWHITE; 
+#endif 
+	return res; 
+}
+
+int lireTableau(monType tableau[N][N], FILE *savedGames) 
+{
+	int res; 
+#ifdef CONVENTIONOK 
+	res=fread(tableau,sizeof(int8_t),64,savedGames); //printf("-------/////-----////--/\n");
+#else 
+	int8_t temp[N][N]; 
+	res=fread(temp,sizeof(int8_t),64,savedGames); 
+	for (int i=0;i<N*N;i++) {
+		tableau[i/8][i%8]=((temp[i/8][i%8]==BLACK)?MYBLACK:(temp[i/8][i%8]==WHITE)?MYWHITE:MYEMPTY); 
+	}
+#endif 
+	return res; 
+}
+int compareTableau(monType tableau[N][N],monType reference[N][N]) 
+{
+	int erreur=0; 
+	for (int i=0;i<64;i++) { 
+		erreur+=(tableau[i/8][i%8]!=reference[i/8][i%8]); 
+	}
+	return erreur; 
+}
+
+
+int main(int argc, char *argv[])
+{
+    init_zobrist(); // pour vérifier que la hashage fonctionne
+
+
+	// tableau before and after (ie. expected after) 
+	monType monTableau[N][N]; // 1 Black, 0 white , 2 empty 
+	monType after[N][N]; 
+	int8_t  c,p; // coup de 0 à 63 pour un coup valide, 64 pour PASS. 
+		     // p player (1 Black, 0 white) 
+	int errors=0,nberrors=0; 
+	int nbtest=0; 
+	FILE *fi; 
+
+	if (argc<2) { printf("%s <file>\n",argv[0]); exit (1); } 
+	if ((fi=fopen(argv[1],"r"))!=NULL) {
+		while (lireTableau(monTableau,fi)) {
+			nbtest++; 
+			//printf("tableau initial\n"); 
+			//afficheTableau(monTableau); 
+			lireCoup(&c,&p,fi); 
+			lireTableau(after,fi); 
+			//printf("coup de %d en %d %d\n",p,c/8,c%8); 
+			
+			faireCoupOthello(monTableau,c,!p);// ici mettez l'appel à votre fonction NOTE: j'ai convention inverse pour la couleur, donc je mets !p
+			//printf("tableau ref\n"); 
+			//afficheTableau(after); 
+			//printf("Le tableau fait par ma fonction jouer_coup:\n");afficheTableau(monTableau); 
+			if ((errors=compareTableau(monTableau,after))) { 
+				printf("%d error(s) in test %d\n",errors,nbtest);
+		       		nberrors+=errors;
+			}
+		}
+	fclose(fi); 
+	} else {
+		perror("cannot open file"); 
+	}
+	printf("J'ai détecté %d Erreur(s)\n",nberrors); 
+}
+

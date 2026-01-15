@@ -14,7 +14,7 @@
 #include "fonctions.h" 
 
 #define N 8 
-#define BLACK 1 
+#define TEST_BLACK 1 // redefini car dans mon fonctions.h j'utilise deja #define BLACK 0 
 #define WHITE 0 
 #define EMPTY 2 
 
@@ -55,7 +55,7 @@ int faireCoupOthello(monType tableau[N][N],int8_t coup,int8_t couleur){
 	Plateau p={0,0};
 	// copie les donnees de tableau[N][N] dans notre structure de Bitboard
 	for(int i=0; i<N*N; i++){
-		if (tableau[i/8][i%8] == BLACK) {
+		if (tableau[i/8][i%8] == TEST_BLACK) {
             p.noir |= (1ULL<< i);
         }
 		else if (tableau[i/8][i%8] == WHITE) {
@@ -77,7 +77,7 @@ int faireCoupOthello(monType tableau[N][N],int8_t coup,int8_t couleur){
         if (coup==64) nouveau_hash ^= ZOBRIST_TOUR; // Si le coup est pass, on doit hasher le tour 
         
         if (calculer_hash_complet(p.noir,p.blanc,!couleur) != nouveau_hash) { // SI le hashage a mal fonctionné( jouer_coup_bitboard n'a pas bien modifié le hash)    
-            printf("erreur de hashage pour le coup:%d hashs: %llx %llx %llx\n",coup,nouveau_hash,calculer_hash_complet(p.noir,p.blanc,!couleur), nouveau_hash^ZOBRIST_TOUR);
+            printf("erreur de hashage pour le coup:%d hashs: %lx %lx %lx\n",coup,nouveau_hash,calculer_hash_complet(p.noir,p.blanc,!couleur), nouveau_hash^ZOBRIST_TOUR);
             printf("plateau avant le coup:\n");afficheTableau(tableau);
             printf("plateau après le coup:\n");afficher_plateau_bitboard(p);
 
@@ -85,6 +85,9 @@ int faireCoupOthello(monType tableau[N][N],int8_t coup,int8_t couleur){
             NOTE sur ces tests: Il y a une position du jeu de test qui fait jouer un coup illégal(une case déjà prise). C'est donc un cas où le hash 'bug' car il n'actualise pas le changement de tour. 
             (on sait ça car nouveau_hash^ZOBRIST_TOUR donne le bon hash)
             Mais en réalité on s'en fiche car en vraie partie on ne joue pas de coup illégaux
+
+		Etonnament ce bug n'apparait plus maintenant sur linux, alors que sur Windows si ??
+
             */
 
         }
@@ -94,12 +97,13 @@ int faireCoupOthello(monType tableau[N][N],int8_t coup,int8_t couleur){
     //récupère les bitboards modifiés (le plateau) et les mets dans le tableau qu'on avait en entrée
 	for(int i=0; i<N*N; i++){
 		if ( (p.noir >> i ) & 1ULL) { // si il y a un jeton à l'index i sur le plateau noir
-            tableau[i/8][i%8]= BLACK;
+            tableau[i/8][i%8]= TEST_BLACK;
         }
 		else if ( (p.blanc >> i ) & 1ULL) {
             tableau[i/8][i%8]= WHITE;
         }
 	}
+return 1; // pour stop le warning
 }
 
 
@@ -114,7 +118,7 @@ int lireCoup(int8_t *coup,int8_t *couleur, FILE *savedGames)
 	res=fread(coup,sizeof(int8_t),1,savedGames); 
 	if (res) res=fread(couleur,sizeof(int8_t),1,savedGames); 
 #ifndef CONVENTIONOK 
-	*couleur=(*couleur==BLACK)?MYBLACK:MYWHITE; 
+	*couleur=(*couleur==TEST_BLACK)?MYBLACK:MYWHITE; 
 #endif 
 	return res; 
 }
@@ -128,7 +132,7 @@ int lireTableau(monType tableau[N][N], FILE *savedGames)
 	int8_t temp[N][N]; 
 	res=fread(temp,sizeof(int8_t),64,savedGames); 
 	for (int i=0;i<N*N;i++) {
-		tableau[i/8][i%8]=((temp[i/8][i%8]==BLACK)?MYBLACK:(temp[i/8][i%8]==WHITE)?MYWHITE:MYEMPTY); 
+		tableau[i/8][i%8]=((temp[i/8][i%8]==TEST_BLACK)?MYBLACK:(temp[i/8][i%8]==WHITE)?MYWHITE:MYEMPTY); 
 	}
 #endif 
 	return res; 
@@ -181,6 +185,8 @@ int main(int argc, char *argv[])
 		perror("cannot open file"); 
 	}
 	printf("J'ai détecté %d Erreur(s)\n",nberrors); 
+
+	return 0;
 }
 
 

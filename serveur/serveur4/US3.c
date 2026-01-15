@@ -1,6 +1,7 @@
 // US3: Jouer les coups d'un joueur humain en utilisant l'API réseau
 // A faire avant : export LD_LIBRARY_PATH=.
 
+// BONUS: L'ia suggère au joueur le coup à jouer en réflechissant rapidement
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,16 +17,11 @@
 double limite_temps = 1; // secondes ----------------------------------Temps de réflexion pour l'aide IA ------------------
 double debut;
 bool temps_depasse =false;
-
 position_connue opening_book[TAILLE_LIVRE_OUVERTURE];
 
-// Mode serveur
+
 int main(int argc,char *argv[]) 
-{	
-	//---------------
-	//deja mis dans fonctions.c, ce sont les coeffs utilises
-	//int coeffs_ia[10]={88, 15, 34 ,60 ,35, -2 ,27}; // les nouveaux après entrainement intensif 
-//------------------------
+{
     // Stockage de notre plateau de jeu
     Plateau plateau;
     initialiser_plateau_bitboard(&plateau);

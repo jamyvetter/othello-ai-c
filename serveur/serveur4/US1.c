@@ -46,8 +46,9 @@ int main(){
             printf("On a du passer le tour du joueur par manque de coup legaux\n");
         } 
         tour=!tour; // changement de joueur    
-        }	
-        
+    }	
+    	printf("Fin de la partie!\n");    
+		afficher_plateau_bitboard(plateau);
         int scoreB, scoreN;//Variables de score
         scoreB=__builtin_popcountll(plateau.blanc);scoreN=__builtin_popcountll(plateau.noir); 
         if( scoreB> scoreN )printf("Les blancs ont gagnes; scoreB= %d - scoreN= %d \n",scoreB,scoreN);
@@ -56,4 +57,5 @@ int main(){
 
         return 0;
     }
+
 

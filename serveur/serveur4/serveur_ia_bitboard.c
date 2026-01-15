@@ -97,7 +97,7 @@ int main(int argc,char *argv[])
 				// On calcule à une profondeur supplémentaire jusqu'à se faire timeout
 				debut=obtenir_temps(); temps_depasse=false; // Reset des variables globales (sauf limite_temps)
 				recherche_classique:
-				for (int d=1; d<20; d++){ //------------------------------------------------------------ A changer, on peut partir de plus haut sans trop de problemes
+				for (int d=1; d<20; d++){ //---- A changer, on peut partir de plus haut sans trop de problemes ou pas car comme ça on trouve directe les coups prioritaires à évaluer
 					minimax_hash_temporel(d, &(g->move) ,-INF-10,INF+10, g->myColor, plateau,hash);
 					if (temps_depasse) { // Si la variable globale a été changée pour cause de temps dépassé
 						printf("on a pu aller à Depth=%d \n", d-1 );//On indique jusqu'où on est allé //A commenter pour le tournoi et pas perdre de temps
@@ -139,6 +139,7 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+
 
 
 

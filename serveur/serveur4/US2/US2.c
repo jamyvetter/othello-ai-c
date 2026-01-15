@@ -1,7 +1,7 @@
 //US2
 //  Code pour vérifier la mécanique de jeu (jouer_coup)
 // Vérifie aussi que le hashage des positions fonctionne et que la fonction pour savoir si le coup est legal fonctionne aussi.
-// Compile avec gcc .\US2.c .\fonctions.c -o US2 -Wall -Wextra
+// Compile avec gcc US2.c fonctions.o -o US2 -Wall -Wextra (dans le bon dossier evidement)
 // s'éxécute avec .\US2 .\savedGames_
 
 // NOTE: Tous les tests sont validés, et infos en plus dans la fonction faire_coup sur un 'bug' vu.
@@ -188,5 +188,6 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
 
 

@@ -56,6 +56,8 @@ Bitboard coups_possibles(Bitboard moi, Bitboard adv) ; // renvoie le bitboard de
 
 
 int evaluation_bitboard(Plateau p);// évalue un plateau avec -X si les noirs sont mieux et +X si les blancs sont mieux
+///Les coefficients ont été déterminé après entrainement intensif des IAs en affrontement. Ils sont fixés ici pour être plus rapide.
+
 
 //Fin Fonctions de gestion du bitboard  --------------------------------------------------------------------
 
@@ -138,5 +140,6 @@ void init_hash_ouvertures(position_connue opening_book[TAILLE_LIVRE_OUVERTURE]);
 
 int recherche_ouverture(uint64_t hash);//Cherche dans le livre d'ouvertures(global) si la position associée à hash est connue, 
 // au quel cas on renvoie le coup connu. Sinon, renvoie -1
+
 
 

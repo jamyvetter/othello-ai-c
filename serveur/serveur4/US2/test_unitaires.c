@@ -17,11 +17,6 @@ position_connue opening_book[TAILLE_LIVRE_OUVERTURE];
 
 
 
-
-
-
-
-
 // --- Conventions du fichier de test 
 #define TEST_BLACK 0
 #define TEST_WHITE 1
@@ -69,8 +64,19 @@ void run_tests(const char* filename) {
         // Jouer le coup demandé
         // NOTE: erreur si le coup demande est 64, par choix de codage je décide que on verifie à l'exterieur de jouer_coup que le coup ne soit pas pass.
         // ça permet notamment de faire moins de requete if move!= 64 dans chaque appel de joeur coup dans minimax (ce qui serait long) 
-        if (index_coup!=64) jouer_coup_bitboard(&p, index_coup, est_blanc);
+        
 
+        
+        
+        Bitboard nouveau_hash= calculer_hash_complet(p.noir,p.blanc,est_blanc);
+
+        // On vérifie au passage la fonction coups_possibles pour voir si on savait bien que ce coup est legal
+        if ( coups_possibles(est_blanc?p.blanc:p.noir,est_blanc?p.noir:p.blanc)& (1ULL << index_coup) ) jouer_coup_bitboard_hash(&p, &nouveau_hash, index_coup,est_blanc);
+        //jouer_coup_bitboard(&p, index_coup, est_blanc); // Commenté mais marche aussi
+         
+        
+        if (index_coup==64) nouveau_hash ^= ZOBRIST_TOUR; // Si le coup est pass, on doit hasher le tour 
+        if (calculer_hash_complet(p.noir,p.blanc,!est_blanc) != nouveau_hash) printf("erreur move:%d %lld %lld\n",index_coup,nouveau_hash,calculer_hash_complet(p.noir,p.blanc,!est_blanc));
 
         bool success = true; // pour savoir si le coup a fait le resultat attendu
         
@@ -107,6 +113,7 @@ void run_tests(const char* filename) {
 }
 
 int main() {
+    init_zobrist();
     run_tests("savedGames_");
     return 0;
 }

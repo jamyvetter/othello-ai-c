@@ -3,14 +3,14 @@ CFLAGS = -Wall -Wextra
 LDFLAGS = -L. -lothello
 
 # Cibles
-EXEC = serveur_ia_bitboard
+EXEC = US5
 OBJ = fonctions.o
 
 all: $(EXEC)
 
 # L'exécutable dépend de l'objet fonctions.o
-$(EXEC): serveur_ia_bitboard.c $(OBJ) fonctions.h
-	$(CC) $(CFLAGS) -o $(EXEC) serveur_ia_bitboard.c $(OBJ) $(LDFLAGS)
+$(EXEC): US5.c $(OBJ) fonctions.h
+	$(CC) $(CFLAGS) -o $(EXEC) US5.c $(OBJ) $(LDFLAGS)
 
 # Compilation de l'objet fonctions.o
 $(OBJ): fonctions.c fonctions.h
@@ -18,3 +18,4 @@ $(OBJ): fonctions.c fonctions.h
 
 clean:
 	rm -f $(OBJ) $(EXEC)
+

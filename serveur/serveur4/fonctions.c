@@ -11,14 +11,7 @@
 
 #define INF 999999 // valeur maximale d'evaluation théoriquement inateignable
 
-
-int nb_coup_analyses=0; // le nombre de position regardees avant chaque decision
-//int Depth=4; // la profondeur pour les appels de minimax
-int nb_coup_jouees=0;// Le stade de la partie en cours
-
-
 // Gestion temporelle: mesure du temps
-
 double obtenir_temps(){
     struct timeval tv;
     gettimeofday(&tv,NULL);
@@ -782,11 +775,6 @@ void envoyer_coup_serveur(int x,int y){ // Afficher le coup correspondant aux co
         traduction(x, y, coup);
         printf("%s\n",coup);
 }
-void envoyer_coup_serveur_et_message(int x,int y){ // pareil + message avec info diverses
-        char coup[3];
-        traduction(x, y, coup);
-        printf("%s MSG %d \n",coup,nb_coup_analyses); // le nombre de position regardees avant chaque decision); // envoie le coup au serveur
-}
 
 
 // Fonctions pour l'API serveur  -----------------------------------------------------------
@@ -848,5 +836,6 @@ int recherche_ouverture(uint64_t hash){
     }
     return -1; // Pas de coup connu
 }
+
 
 

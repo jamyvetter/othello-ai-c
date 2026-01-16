@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+CFLAGS = -Wall -Wextra -O3
 LDFLAGS = -L. -lothello
 
 # Cibles
@@ -18,5 +18,6 @@ $(OBJ): fonctions.c fonctions.h
 
 clean:
 	rm -f $(OBJ) $(EXEC)
+
 
 

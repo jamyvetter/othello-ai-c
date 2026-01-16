@@ -432,7 +432,7 @@ int evaluation_bitboard(Plateau p) {
 */
     Bitboard masques_cases[10]={c0_BB,c1_BB,c2_BB,c3_BB,c4_BB,c5_BB,c6_BB,c7_BB,c8_BB,c9_BB};
     //int poids_cases[10]= {c0_poids, c1_poids ,c2_poids, c3_poids, c4_poids ,c5_poids,c6_poids, c7_poids ,c8_poids, c9_poids};
-    int poids_cases[10]= {0, 4 ,-3, 6, 7 ,-4,8, -24 ,-8, 99};
+    int poids_cases[10]= {0, 4 ,-3, 6, 7 ,-4,8, -50 ,-25, 100};
 
     int compteB; int compteN;
     for (int u=0; u<10; u++){ //On somme le tout pour obtenir le score pondere de chaque joueur
@@ -836,6 +836,7 @@ int recherche_ouverture(uint64_t hash){
     }
     return -1; // Pas de coup connu
 }
+
 
 
 

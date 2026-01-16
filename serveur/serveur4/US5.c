@@ -16,7 +16,7 @@
 
 
 /*Variables globales pour la gestion du temps ecoule*/
-double limite_temps = 14; // secondes ----------------------------------A changer en 14-15s pr le tournoi, à tester ------------------
+double limite_temps = 14.1; // secondes ---------------------------------- 14.2 ne passe pas, 14 n'a jamais timout
 double debut;
 bool temps_depasse =false;
 
@@ -137,6 +137,7 @@ int main(int argc,char *argv[])
 	return 0; 
 
 }
+
 
 
 

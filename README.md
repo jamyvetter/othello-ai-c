@@ -5,8 +5,5 @@ Améliorations futures:
 -Une vraie database d'ouvertures (bytheway faut limiter taille du tab opening)
 - Solveur d'endgame avec positions connues comme gagnantes/perdantes
 - Meilleurs coefficients à déterminer (car avant l'IA jouait pas les mêmes ouvertures quand les coeffs ont été déterminés)
-
-Tout fonctionne et tout ce qui est à rendre est dans le dossier serveur4
-Je mets aussi dans un dossier programmes_complémentaires les codes pour évaluer l'IA, trouver les bons gènes ect...
-
-
+- Meilleure fonction d'évaluation
+- Bilan tournoi: A peine top 2 face à Gemini pro*2. Abusé...

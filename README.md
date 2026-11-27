@@ -2,7 +2,7 @@
 
 > **Competitive Othello (Reversi) artificial intelligence engine in C featuring 64-bit
 > bitboards, iterative deepening Alpha-Beta search, Zobrist transposition tables, and
-> genetic algorithm heuristic tuning for the Grenoble INP – Esisar Tournament.**
+> genetic algorithm heuristic tuning.**
 
 ---
 

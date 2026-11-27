@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <stdint.h> 
+#include <stdbool.h>
 #include <errno.h>
 
 // Programme pour US2 , verifie que la fonction jouerCoup ou jouercoupavechistorique (ou ici faireCoupOthello) fonctionne. 

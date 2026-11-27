@@ -25,7 +25,7 @@
 3. **Zobrist Hashing, Transposition Table & Opening Book**:
    - Incremental 64-bit XOR Zobrist hashing (`ZOBRIST_TABLE[64][2]`, `ZOBRIST_TOUR`).
    - $2^{20}$-entry (~1M entries) transposition table (`TT_Entry`) storing exact scores, lower/upper Alpha-Beta bounds (`TT_FLAG_EXACT`, `TT_FLAG_LOWER`, `TT_FLAG_UPPER`), and cached best moves.
-   - Zobrist-keyed opening book (`opening_book`) handling early-game transpositions (`d3`, Tiger/Cow/Star lines).
+   - Zobrist-keyed opening book (`opening_book`) handling early-game transpositions (`d3`, Star, and Cow lines).
 4. **Evolutionary Heuristic Tuning (`algoGenetique.h`, `algoGenetique_etu.c`)**:
    - Offline genetic algorithm evolving populations of 100 candidate evaluators (`NBPOPULATION = 100`, `NBPARENTS = 40`) via tournament selection, uniform crossover, elitism, and variance-adaptive mutation.
    - Phase-interpolated evaluation blending opening/endgame linear models over 10 symmetric board-region masks (`c0`–`c9` rewarding corners and penalizing X/C-squares), legal move mobility, and disc differential.

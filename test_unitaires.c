@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../fonctions.h" 
+#include "fonctions.h" 
 
 // --- Conventions du fichier de test 
 #define TEST_BLACK 0
